@@ -2,16 +2,8 @@
     background: gray;
 }
 
-h1 {
-    color: orange;
-}
-
 body {
     font-family: "Work Sans", sans-serif;
-}
-
-.legend-large, .legend-small {
-    border-radius: 50%;
 }
 
 hr.small, hr.large {
@@ -23,16 +15,4 @@ hr.small, hr.large {
     margin-top: 8px;            /* overwrite assembly.css rule */
 }
 
-#info {
-    z-index: 1000;
-}
 
-
-#legend-button {
-    bottom: 30px;
-    right: 14px;
-    position: absolute;
-    border-radius: 4px;
-    border: 1px solid rgba(0,0,0,0.1);
-    z-index: 1100;
-  }
