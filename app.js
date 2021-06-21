@@ -104,6 +104,11 @@ function processData(counties, data) {
 
     /////////////* !!!!!!!!!!!!! NORMALIZE DATA HERE??  *///////////////
 
+    var pop = rates;
+    var area = ("ALAND" * 0.0000003861);
+    var density = Number(pop) / Number(area);
+    console.log(density);    
+
     //var popDensity = (rates / ("ALAND * 0.0000003861"));
 
     var breaks = chroma.limits(rates, 'q', 7);

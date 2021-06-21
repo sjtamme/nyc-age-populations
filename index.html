@@ -57,9 +57,12 @@
         }
 
         p {
-            font-size: 1em;
-            text-align: center;
+            font-size: .94em;
             color: #001323;
+        }
+
+        li {
+            font-size: .94em;
         }
 
         .legend {
@@ -149,22 +152,13 @@
         </label>
     </div>
 
-    <!-- DROPDOWN TRY #1 -->
-    <div class="form-group mr-3 mt-3" id="dropdown-ui">
-        <select class="form-control bg-primary text-white">
-            <option value="2014_0-14" selected>0-14</option>
-            <option value="2014_15-20">15-20</option>
-            <option value="2014_21-34">21-34</option>
-        </select>
-    </div>
-
-
     <footer>
         <br>
-        <h2>The Changing Ages of NYC</h2>
-        <p>Map authored by Sarah Jane Tamme</p>
+        <h2>The Changing Ages of New York City</h2>
+        <p>INFORMATION HERE</p>
         <hr>
         <ul>
+            <p>Map authored by Sarah Jane Tamme, June 2021</p>
             <li>See my projects on <a href="https://github.com/sjtamme">Github</a>.</li>
             <li>Check out the University of Kentucky's <a href='https://newmapsplus.as.uky.edu/'>New Maps
                     Plus</a> program.</li>
@@ -183,6 +177,18 @@
 
     </footer>
 
+    <!-- DROPDOWN TRY #1 -->
+    <div class="form-group mr-3 mt-3" id="dropdown-ui">
+        <select class="form-control bg-primary text-white">
+            <option value="`${currentYear}`_0-14" selected>0-14</option>
+            <option value="`${currentYear}`_15-20">15-20</option>
+            <option value="`${currentYear}`_21-34">21-34</option>
+            <option value="`${currentYear}`_35-49">35-49</option>
+            <option value="`${currentYear}`_50-64">50-64</option>
+            <option value="`${currentYear}`_65-79">65-79</option>
+            <option value="`${currentYear}`_80+">80+</option>
+        </select>
+    </div>
     </div>
 
     <!-- DROPDOWN TRY #2-->
