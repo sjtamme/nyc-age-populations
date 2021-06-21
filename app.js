@@ -4,10 +4,11 @@ const options = {
     zoom: 10,
     zoomSnap: .1,
     dragging: true,
-    zoomControl: true
+    zoomControl: false
 }
 
 const map = L.map('map', options);
+
 
 const tiles = L.tileLayer('http://{s}.tile.stamen.com/toner-background/{z}/{x}/{y}.{ext}', {
     attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -38,9 +39,10 @@ const newyorkLayer = $.getJSON("data/nyc_tracts.geojson", function (counties) {
 let currentYear = 2014
 let ageGroup = '0-14'
 
+
 $.when(newyorkLayer).done(function () {
     $.getJSON("data/nyc_tracts.geojson", function (data) {
-            var dataLayer = L.geoJson(data, {
+            let dataLayer = L.geoJson(data, {
                 style: function (feature) {
                     return {
                         color: '#20282e',
@@ -56,6 +58,7 @@ $.when(newyorkLayer).done(function () {
             console.log("Add data/nyc_tracts.geojson")
         });
 })
+
 
 
 function processData(counties, data) {
@@ -91,6 +94,7 @@ function processData(counties, data) {
                 prop != "NAME" && prop != "ALAND" && prop != "GEOID") {
 
                 rates.push(Number(county.properties[prop]));
+
                 //    console.log(county.properties[prop]);
             }
         }
@@ -98,16 +102,20 @@ function processData(counties, data) {
 
     console.log(rates);
 
+    /////////////* !!!!!!!!!!!!! NORMALIZE DATA HERE??  *///////////////
+
+    //var popDensity = (rates / ("ALAND * 0.0000003861"));
+
     var breaks = chroma.limits(rates, 'q', 7);
     console.log(breaks);
     var colorize = chroma.scale(chroma.brewer.RdPu).classes(breaks).mode('lab');
 
+
     drawMap(counties, colorize);
+    drawLegend(breaks, colorize);
 
+} //end processdata
 
-    // drawLegend(breaks, colorize);
-
-}
 
 
 
@@ -141,9 +149,9 @@ function drawMap(counties, colorize) {
     }).addTo(map);
 
     createSliderUI(dataLayer, colorize);
-
-    updateMap(dataLayer, colorize, '2014', ageGroup);
-}
+    addUi(dataLayer, colorize);
+    updateMap(dataLayer, colorize, currentYear, ageGroup);
+} //end drawMap
 
 
 
@@ -159,14 +167,14 @@ function updateMap(dataLayer, colorize, currentYear, ageGroup) {
         });
     });
 
-}
+} //end updateMap
 
 
-/*
+
 function drawLegend(breaks, colorize) {
 
     const legendControl = L.control({
-        position: 'topright'
+        position: 'bottomright'
     });
 
     legendControl.onAdd = function (map) {
@@ -178,7 +186,7 @@ function drawLegend(breaks, colorize) {
 
     legendControl.addTo(map);
 
-    const legend = $('.legend').html("<h3><span>2014</span>Population </h3><ul>");
+    const legend = $('.legend').html("<h3><span>2014</span>Population</h3><ul>");
 
     for (let i = 0; i < breaks.length - 1; i++) {
 
@@ -186,7 +194,7 @@ function drawLegend(breaks, colorize) {
 
         const classRange = `<li><span style="background:${color}"></span>
              ${breaks[i].toLocaleString()} &mdash;
-             ${breaks[i + 1].toLocaleString()} </li>`
+             ${breaks[i + 1].toLocaleString()}% </li>`
 
         $('.legend ul').append(classRange);
     }
@@ -195,8 +203,9 @@ function drawLegend(breaks, colorize) {
 
     legend.append("</ul>");
 
-} 
-*/
+} //end drawLegend
+
+
 
 
 function createSliderUI(dataLayer, colorize) {
@@ -227,13 +236,40 @@ function createSliderUI(dataLayer, colorize) {
             updateMap(dataLayer, colorize, currentYear, ageGroup);
         });
 
-}
+} //end createSliderUI
 
-// dropdown - look at bootstrap examples
-$('.dropdown-toggle').dropdown()
-    .on("click", function () {
-        console.log(this)
+
+
+/* !!!!!!!!!!DROPDOWN ATTEMPT #1!!!!!!!!!!!!! */
+function addUi(dataLayer, colorize) {
+    var selectControl = L.control({
+        position: "topright"
+    });
+
+    selectControl.onAdd = function () {
+        return L.DomUtil.get("dropdown-ui");
+    };
+
+    selectControl.addTo(map);
+    $('#dropdown-ui select').change(function () {
         const ageGroup = this.value;
-        //$('.legend h3 span').html(ageGroup);
+        console.log(ageGroup);
         updateMap(dataLayer, colorize, currentYear, ageGroup);
     });
+}
+
+
+
+/* 1!!!!!!!!!!! DROPDOWN ATTEMPT #2!!!!!!!!!!!!!!!! 
+
+    // dropdown - look at bootstrap examples
+    $('.dropdown-menu')
+        .on("click", function () {
+            // console.log(this)
+            const ageGroup = this.value;
+            console.log(ageGroup)
+            $('.dropdown-menu').html(ageGroup);
+            updateMap(dataLayer, colorize, currentYear, ageGroup);
+        });
+
+        */
