@@ -1,14 +1,14 @@
 # nyc-age-populations
-
-I currently have the geometry in one file and the attributes in CSV files by year, and I will join them using the GEOID attribute. I was able to pull out the data I want from each year, but I am not sure how to narrow the data down to just NYC - it shows the data for all of NY. While there are about 2,000 tracts in NYC, the data includes all 4,918 tracts in the state of NY. Because of this, I went ahead and used the entire state's geometry. 
-
-Regarding the CSV files, I will need to add the male and female columns together for each age group, as well as some of the age groups for each tract so that there are fewer age ranges to look through. I will also need to join all of the years together so that there is one CSV file to join.
-
+My final project is a map of New York City's populations of various age ranges. UI elements let the user look at the different age ranges, as well as different years (from 2014-2018).
 
 I pulled the data from: https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-data.2017.html (all the years can be seen along the top). The data includes tracts and data on population by age. 
 Here is the tract metadata document: https://www2.census.gov/geo/tiger/TIGER_DP/2018ACS/Metadata/TRACT_METADATA_2018.txt (this is for 2018, but the same codes are used for each year).
 
+For data wrangling, I used QGIS to filter the geojson to just NYC census tracts. I wrangled the data to create one CSV file that contains each year and each age group I want to map. I joined the files together using the GEOID attributes.
 
-The map (once I get my data wrangled) will show the NYC population of different age ranges from 2014-2018. A UI drop down will allow users to choose what age range they want to view, and a UI slider will let them move through different years.
+Still to do:
+- get working dropdown menu
+- normalize data using land area
+- add legend
+- add information
 
-At the moment, I am using a template from a previous module as the web page, but I plan to choose a different template once I get the data and map figured out.
