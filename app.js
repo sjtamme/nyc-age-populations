@@ -18,7 +18,6 @@ const tiles = L.tileLayer('http://{s}.tile.stamen.com/toner-background/{z}/{x}/{
 
 const newyorkLayer = $.getJSON("data/nyc_tracts.geojson", function (counties) {
 
-    // counties is accessible here
     console.log(counties);
 
     Papa.parse('data/populations.csv', {
@@ -29,110 +28,98 @@ const newyorkLayer = $.getJSON("data/nyc_tracts.geojson", function (counties) {
 
             processData(counties, data);
 
-            // data is accessible to us here
             console.log('data: ', data);
-
-            // note that counties is also accessible here!
             console.log('counties: ', counties);
 
         }
-    }); // end of Papa.parse()
-
+    });
 });
 
+let currentYear = 2014
+let ageGroup = '0-14'
+
 $.when(newyorkLayer).done(function () {
-    // load, filter, and style the state outline 
     $.getJSON("data/nyc_tracts.geojson", function (data) {
-            var tractLayer = L.geoJson(data, {
+            var dataLayer = L.geoJson(data, {
                 style: function (feature) {
                     return {
-                        color: '#20282e', // Gray
-                        weight: 1.7,
+                        color: '#20282e',
+                        weight: .2,
                         fillOpacity: 0,
                         interactive: false
                     };
                 }
             })
-            // Add layer to map!
-            tractLayer.addTo(map)
+            dataLayer.addTo(map)
         })
         .fail(function () {
-            // the data file failed to load
             console.log("Add data/nyc_tracts.geojson")
         });
 })
 
+
 function processData(counties, data) {
 
-    /*  const letters = ["a", "b", "c", "d", "e"];
-      const numbers = [1, 2, 3, 4, 5];
+    for (let county of counties.features) {
 
-      letters.forEach((i) => {
-          numbers.forEach((j) => {
-              console.log(i, j); // what are these outputs?
-          })
-      }) */
+        let joined = false
 
-    // loop through all the counties
-    for (let i of counties.features) {
+        for (let csv of data.data) {
 
-        // for each of the CSV data rows
-        for (let j of data.data) {
+            if (county.properties.GEOID === csv.GEOID) {
 
-            // if the county fips code and data fips code match
-            if (i.properties.GEOID === j.GEOID) {
+                county.properties = csv;
 
-                // re-assign the data for that county as the county's props
-                i.properties = j;
+                joined = true
 
-                // no need to keep looping, break from inner loop
                 break;
-                // console.log the values
+
                 // console.log('county geoid: ', i.properties.GEOID);
                 // console.log('data geoid: ', j.GEOID);
+
             }
         }
     }
 
-    // empty array to store all the data values
     const rates = [];
 
-    // iterate through all the counties
     counties.features.forEach(function (county) {
 
-        // iterate through all the props of each county
         for (const prop in county.properties) {
 
-            // if the attribute is a number and not one of the fips codes or name
             if (prop != "COUNTYFP" && prop != "OBJECTID" && prop != "STATEFP" && prop != "TRACTCE" &&
-                prop != "NAME" && prop != "ALAND") {
+                prop != "NAME" && prop != "ALAND" && prop != "GEOID") {
 
-                // push that attribute value into the array
                 rates.push(Number(county.properties[prop]));
+                //    console.log(county.properties[prop]);
             }
         }
     });
 
-    // verify the result!
     console.log(rates);
 
-    var breaks = chroma.limits(rates, 'q', 5);
-
-    var colorize = chroma.scale(chroma.brewer.OrRd).classes(breaks).mode('lab');
+    var breaks = chroma.limits(rates, 'q', 7);
+    console.log(breaks);
+    var colorize = chroma.scale(chroma.brewer.RdPu).classes(breaks).mode('lab');
 
     drawMap(counties, colorize);
 
-    drawLegend(breaks, colorize);
+
+    // drawLegend(breaks, colorize);
 
 }
 
+
+
 function drawMap(counties, colorize) {
 
+    console.log(counties)
+    console.log(colorize)
     const dataLayer = L.geoJson(counties, {
         style: function (feature) {
             return {
                 color: 'black',
-                weight: 1,
+                weight: 0.1,
                 fillOpacity: 1,
                 fillColor: '#1f78b4'
             };
@@ -140,14 +127,14 @@ function drawMap(counties, colorize) {
         onEachFeature: function (feature, layer) {
             layer.on('mouseover', function () {
                 layer.setStyle({
-                    color: 'yellow',
-                    weight: 2
+                    //     color: 'yellow',
+                    weight: .3
                 }).bringToFront();
             });
             layer.on('mouseout', function () {
                 layer.setStyle({
                     color: 'black',
-                    weight: 1
+                    weight: .4
                 });
             });
         }
@@ -155,37 +142,27 @@ function drawMap(counties, colorize) {
 
     createSliderUI(dataLayer, colorize);
 
-    updateMap(dataLayer, colorize, '2014');
+    updateMap(dataLayer, colorize, '2014', ageGroup);
 }
 
 
-function updateMap(dataLayer, colorize, currentYear) {
+
+
+function updateMap(dataLayer, colorize, currentYear, ageGroup) {
 
     dataLayer.eachLayer(function (layer) {
 
         var props = layer.feature.properties;
-
+        // console.log(props)
         layer.setStyle({
-            fillColor: colorize(Number(props[currentYear]))
+            fillColor: colorize(Number(props[`${currentYear}_${ageGroup}`]))
         });
-
-        //popup build
-        let popup = ''
-        if (props["NAME"]) {
-            popup = `<b>${props["NAME"]}</b><br />
-                ${props[currentYear]}% Unemployed in ${currentYear}`;
-        } else {
-            popup = 'No Data'
-        }
-
-        layer.bindPopup(popup);
-
     });
 
 }
 
 
-
+/*
 function drawLegend(breaks, colorize) {
 
     const legendControl = L.control({
@@ -201,7 +178,7 @@ function drawLegend(breaks, colorize) {
 
     legendControl.addTo(map);
 
-    const legend = $('.legend').html("<h3><span>2014</span>Population Percent </h3><ul>");
+    const legend = $('.legend').html("<h3><span>2014</span>Population </h3><ul>");
 
     for (let i = 0; i < breaks.length - 1; i++) {
 
@@ -214,13 +191,12 @@ function drawLegend(breaks, colorize) {
         $('.legend ul').append(classRange);
     }
 
-    // Add legend item for missing data
     $('.legend ul').append(`<li><span style="background:lightgray"></span>No data</li>`)
 
     legend.append("</ul>");
 
-}
-
+} 
+*/
 
 
 function createSliderUI(dataLayer, colorize) {
@@ -245,9 +221,22 @@ function createSliderUI(dataLayer, colorize) {
 
     $(".year-slider")
         .on("input change", function () {
+            console.log(this)
             const currentYear = this.value;
             $('.legend h3 span').html(currentYear);
-            updateMap(dataLayer, colorize, currentYear);
+            updateMap(dataLayer, colorize, currentYear, ageGroup);
         });
 
 }
+
+
+// dropdown - look at bootstrap examples
+$(".dropdown-menu")
+    .on("Click", function () {
+        console.log(this)
+        const ageGroup = this.value;
+        //$('.legend h3 span').html(ageGroup);
+        updateMap(dataLayer, colorize, currentYear, ageGroup);
+    });
+   
+
