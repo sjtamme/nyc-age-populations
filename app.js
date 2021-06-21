@@ -229,14 +229,11 @@ function createSliderUI(dataLayer, colorize) {
 
 }
 
-
 // dropdown - look at bootstrap examples
-$(".dropdown-menu")
-    .on("Click", function () {
+$('.dropdown-toggle').dropdown()
+    .on("click", function () {
         console.log(this)
         const ageGroup = this.value;
         //$('.legend h3 span').html(ageGroup);
         updateMap(dataLayer, colorize, currentYear, ageGroup);
     });
-   
-
