@@ -9,6 +9,5 @@ For data wrangling, I used QGIS to filter the geojson to just NYC census tracts.
 Still to do:
 - get working dropdown menu
 - normalize data using land area
-- add legend
-- add information
+
 
