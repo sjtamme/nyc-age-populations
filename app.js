@@ -1,7 +1,7 @@
 const options = {
     scrollWheelZoom: true,
     center: [40.7, -73.9],
-    zoom: 10,
+    zoom: 11.4,
     zoomSnap: .1,
     dragging: true,
     zoomControl: false
@@ -9,12 +9,15 @@ const options = {
 
 const map = L.map('map', options);
 
-
+const tiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+/*
 const tiles = L.tileLayer('http://{s}.tile.stamen.com/toner-background/{z}/{x}/{y}.{ext}', {
     attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     subdomains: 'abcd',
     ext: 'png'
-}).addTo(map);
+}).addTo(map);  */
 
 
 const newyorkLayer = $.getJSON("data/nyc_tracts.geojson", function (counties) {
@@ -46,7 +49,7 @@ $.when(newyorkLayer).done(function () {
                 style: function (feature) {
                     return {
                         color: '#20282e',
-                        weight: .2,
+                        weight: .04,
                         fillOpacity: 0,
                         interactive: false
                     };
@@ -57,6 +60,19 @@ $.when(newyorkLayer).done(function () {
         .fail(function () {
             console.log("Add data/nyc_tracts.geojson")
         });
+    $.getJSON("data/borough_boundaries.geojson", function (boros) {
+        const boroLayer = L.geoJson(boros, {
+            style: function (feature) {
+                return {
+                    color: '#20282e',
+                    weight: 0,
+                    fillOpacity: 0,
+                    interactive: false
+                };
+            }
+        })
+        boroLayer.addTo(map)
+    })
 })
 
 
@@ -107,7 +123,7 @@ function processData(counties, data) {
     var pop = rates;
     var area = ("ALAND" * 0.0000003861);
     var density = Number(pop) / Number(area);
-    console.log(density);    
+    console.log(density);
 
     //var popDensity = (rates / ("ALAND * 0.0000003861"));
 
@@ -131,7 +147,7 @@ function drawMap(counties, colorize) {
     const dataLayer = L.geoJson(counties, {
         style: function (feature) {
             return {
-                color: 'black',
+                // color: 'black',
                 weight: 0.1,
                 fillOpacity: 1,
                 fillColor: '#1f78b4'
@@ -140,15 +156,9 @@ function drawMap(counties, colorize) {
         onEachFeature: function (feature, layer) {
             layer.on('mouseover', function () {
                 layer.setStyle({
-                    //     color: 'yellow',
+                    // color: 'yellow',
                     weight: .3
                 }).bringToFront();
-            });
-            layer.on('mouseout', function () {
-                layer.setStyle({
-                    color: 'black',
-                    weight: .4
-                });
             });
         }
     }).addTo(map);
@@ -262,7 +272,6 @@ function addUi(dataLayer, colorize) {
         updateMap(dataLayer, colorize, currentYear, ageGroup);
     });
 }
-
 
 
 /* 1!!!!!!!!!!! DROPDOWN ATTEMPT #2!!!!!!!!!!!!!!!! 
