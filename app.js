@@ -87,7 +87,7 @@ function processData(counties, data) {
 
             if (county.properties.GEOID === csv.GEOID) {
 
-                county.properties = csv;
+                county.properties.pop = csv;
 
                 joined = true
 
@@ -104,12 +104,17 @@ function processData(counties, data) {
 
     counties.features.forEach(function (county) {
 
-        for (const prop in county.properties) {
+        for (const prop in county.properties.pop) {
 
             if (prop != "COUNTYFP" && prop != "OBJECTID" && prop != "STATEFP" && prop != "TRACTCE" &&
                 prop != "NAME" && prop != "ALAND" && prop != "GEOID") {
 
-                rates.push(Number(county.properties[prop]));
+                    /////////////* !!!!!!!!!!!!! NORMALIZE DATA HERE??  *///////////////
+
+                var density = Number(county.properties.pop[prop]) / (Number(county.properties["ALAND"])* 0.0000003861);
+                // console.log(county);
+
+                rates.push(density);
 
                 //    console.log(county.properties[prop]);
             }
@@ -118,12 +123,7 @@ function processData(counties, data) {
 
     console.log(rates);
 
-    /////////////* !!!!!!!!!!!!! NORMALIZE DATA HERE??  *///////////////
-
-    var pop = rates;
-    var area = ("ALAND" * 0.0000003861);
-    var density = Number(pop) / Number(area);
-    console.log(density);
+    
 
     //var popDensity = (rates / ("ALAND * 0.0000003861"));
 
@@ -175,7 +175,7 @@ function updateMap(dataLayer, colorize, currentYear, ageGroup) {
 
     dataLayer.eachLayer(function (layer) {
 
-        var props = layer.feature.properties;
+        var props = layer.feature.properties.pop;
         // console.log(props)
         layer.setStyle({
             fillColor: colorize(Number(props[`${currentYear}_${ageGroup}`]))
