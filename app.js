@@ -172,6 +172,8 @@ function drawMap(counties, colorize) {
 
 function updateMap(dataLayer, colorize, currentYear, ageGroup) {
 
+    console.log(`${currentYear}_${ageGroup}`)
+
     dataLayer.eachLayer(function (layer) {
 
         var props = layer.feature.properties;
@@ -247,7 +249,7 @@ function createSliderUI(dataLayer, colorize) {
     $(".year-slider")
         .on("input change", function () {
             console.log(this)
-            const currentYear = this.value;
+            currentYear = this.value;
             $('.legend h3 span').html(currentYear);
             updateMap(dataLayer, colorize, currentYear, ageGroup);
         });
@@ -268,7 +270,7 @@ function addUi(dataLayer, colorize) {
 
     selectControl.addTo(map);
     $('#dropdown-ui select').change(function () {
-        const ageGroup = this.value;
+        ageGroup = this.value;
         console.log(ageGroup);
         updateMap(dataLayer, colorize, currentYear, ageGroup);
     });
