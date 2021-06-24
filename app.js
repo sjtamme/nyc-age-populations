@@ -106,12 +106,11 @@ function processData(counties, data) {
 
         for (const prop in county.properties.pop) {
 
-            if (prop != "COUNTYFP" && prop != "OBJECTID" && prop != "STATEFP" && prop != "TRACTCE" &&
-                prop != "NAME" && prop != "ALAND" && prop != "GEOID") {
+            if (!prop.includes('_totpop') && prop != "GEOID") {
 
                     /////////////* !!!!!!!!!!!!! NORMALIZE DATA HERE??  *///////////////
 
-                var density = Number(county.properties.pop[prop]) / (Number(county.properties["ALAND"])* 0.0000003861);
+                var density = Number(county.properties.pop[prop]) / (Number(county.properties["ALAND"])* 0.000247105);
                 // console.log(county);
 
                 rates.push(density);
@@ -175,11 +174,13 @@ function updateMap(dataLayer, colorize, currentYear, ageGroup) {
 
     dataLayer.eachLayer(function (layer) {
 
-        var props = layer.feature.properties.pop;
+        var props = layer.feature.properties;
         // console.log(props)
+        const density = Number(props.pop[`${currentYear}_${ageGroup}`])/(Number(props["ALAND"])* 0.000247105)
         layer.setStyle({
-            fillColor: colorize(Number(props[`${currentYear}_${ageGroup}`]))
+            fillColor: colorize(density)
         });
+        layer.bindPopup(`density ${density}`)
     });
 
 } //end updateMap
@@ -208,8 +209,8 @@ function drawLegend(breaks, colorize) {
         const color = colorize(breaks[i], breaks);
 
         const classRange = `<li><span style="background:${color}"></span>
-             ${breaks[i].toLocaleString()} &mdash;
-             ${breaks[i + 1].toLocaleString()}% </li>`
+            
+             < ${breaks[i + 1].toLocaleString()} </li>`
 
         $('.legend ul').append(classRange);
     }
