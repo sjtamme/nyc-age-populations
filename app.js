@@ -108,12 +108,15 @@ function processData(counties, data) {
 
             if (!prop.includes('_totpop') && prop != "GEOID") {
 
-                    /////////////* !!!!!!!!!!!!! NORMALIZE DATA HERE??  *///////////////
+                /////////////* !!!!!!!!!!!!! NORMALIZE DATA HERE??  *///////////////
+                const p = county.properties.pop[prop]
+                const y = prop.substring(0,4)
+                const d = p / county.properties.pop[`${y}_totpop`]
 
                 var density = Number(county.properties.pop[prop]) / (Number(county.properties["ALAND"])* 0.000247105);
                 // console.log(county);
 
-                rates.push(density);
+                rates.push(d);
 
                 //    console.log(county.properties[prop]);
             }
@@ -177,12 +180,23 @@ function updateMap(dataLayer, colorize, currentYear, ageGroup) {
     dataLayer.eachLayer(function (layer) {
 
         var props = layer.feature.properties;
+        const total = props.pop[`${currentYear}_totpop`]
         // console.log(props)
-        const density = Number(props.pop[`${currentYear}_${ageGroup}`])/(Number(props["ALAND"])* 0.000247105)
-        layer.setStyle({
-            fillColor: colorize(density)
-        });
-        layer.bindPopup(`density ${density}`)
+        const density = Number(props.pop[`${currentYear}_${ageGroup}`])/(Number(props["ALAND"])* 0.000247105) // per acre
+        const ratio = Number(props.pop[`${currentYear}_${ageGroup}`]/total) // ratio
+        
+        if (total > 99) {
+            layer.setStyle({
+                fillColor: colorize(ratio)
+            });
+        } else {
+            layer.setStyle({
+                fillOpacity: 0
+            });
+        }
+
+        
+        layer.bindPopup(`ratio ${ratio}, tot pop; ${total}`)
     });
 
 } //end updateMap
