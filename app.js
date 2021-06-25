@@ -87,7 +87,7 @@ function processData(counties, data) {
 
             if (county.properties.GEOID === csv.GEOID) {
 
-                county.properties = csv;
+                county.properties.pop = csv;
 
                 joined = true
 
@@ -104,12 +104,19 @@ function processData(counties, data) {
 
     counties.features.forEach(function (county) {
 
-        for (const prop in county.properties) {
+        for (const prop in county.properties.pop) {
 
-            if (prop != "COUNTYFP" && prop != "OBJECTID" && prop != "STATEFP" && prop != "TRACTCE" &&
-                prop != "NAME" && prop != "ALAND" && prop != "GEOID") {
+            if (!prop.includes('_totpop') && prop != "GEOID") {
 
-                rates.push(Number(county.properties[prop]));
+                /////////////* !!!!!!!!!!!!! NORMALIZE DATA HERE??  *///////////////
+                const p = county.properties.pop[prop]
+                const y = prop.substring(0,4)
+                const d = p / county.properties.pop[`${y}_totpop`]
+
+                var density = Number(county.properties.pop[prop]) / (Number(county.properties["ALAND"])* 0.000247105);
+                // console.log(county);
+
+                rates.push(d);
 
                 //    console.log(county.properties[prop]);
             }
@@ -118,12 +125,7 @@ function processData(counties, data) {
 
     console.log(rates);
 
-    /////////////* !!!!!!!!!!!!! NORMALIZE DATA HERE??  *///////////////
-
-    var pop = rates;
-    var area = ("ALAND" * 0.0000003861);
-    var density = Number(pop) / Number(area);
-    console.log(density);
+    
 
     //var popDensity = (rates / ("ALAND * 0.0000003861"));
 
@@ -173,13 +175,28 @@ function drawMap(counties, colorize) {
 
 function updateMap(dataLayer, colorize, currentYear, ageGroup) {
 
+    console.log(`${currentYear}_${ageGroup}`)
+
     dataLayer.eachLayer(function (layer) {
 
         var props = layer.feature.properties;
+        const total = props.pop[`${currentYear}_totpop`]
         // console.log(props)
-        layer.setStyle({
-            fillColor: colorize(Number(props[`${currentYear}_${ageGroup}`]))
-        });
+        const density = Number(props.pop[`${currentYear}_${ageGroup}`])/(Number(props["ALAND"])* 0.000247105) // per acre
+        const ratio = Number(props.pop[`${currentYear}_${ageGroup}`]/total) // ratio
+        
+        if (total > 99) {
+            layer.setStyle({
+                fillColor: colorize(ratio)
+            });
+        } else {
+            layer.setStyle({
+                fillOpacity: 0
+            });
+        }
+
+        
+        layer.bindPopup(`ratio ${ratio}, tot pop; ${total}`)
     });
 
 } //end updateMap
@@ -208,8 +225,8 @@ function drawLegend(breaks, colorize) {
         const color = colorize(breaks[i], breaks);
 
         const classRange = `<li><span style="background:${color}"></span>
-             ${breaks[i].toLocaleString()} &mdash;
-             ${breaks[i + 1].toLocaleString()}% </li>`
+            
+             < ${breaks[i + 1].toLocaleString()} </li>`
 
         $('.legend ul').append(classRange);
     }
@@ -246,7 +263,7 @@ function createSliderUI(dataLayer, colorize) {
     $(".year-slider")
         .on("input change", function () {
             console.log(this)
-            const currentYear = this.value;
+            currentYear = this.value;
             $('.legend h3 span').html(currentYear);
             updateMap(dataLayer, colorize, currentYear, ageGroup);
         });
@@ -267,7 +284,7 @@ function addUi(dataLayer, colorize) {
 
     selectControl.addTo(map);
     $('#dropdown-ui select').change(function () {
-        const ageGroup = this.value;
+        ageGroup = this.value;
         console.log(ageGroup);
         updateMap(dataLayer, colorize, currentYear, ageGroup);
     });
