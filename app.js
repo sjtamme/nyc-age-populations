@@ -143,14 +143,21 @@ function drawMap(counties, colorize) {
                 fillColor: '#1f78b4'
             };
         },
-        /*  onEachFeature: function (feature, layer) {
+        onEachFeature: function (feature, layer) {
               layer.on('mouseover', function () {
                   layer.setStyle({
-                      // color: 'yellow',
-                      weight: .3
-                  }).bringToFront();
+                      color: 'black',
+                      weight: 1.5,
+                      // fillColor: 'yellow'
+                  });
+                  layer.on('mouseout', function () {
+                      layer.setStyle({
+                        color: '#20282e',
+                        weight: 0,
+                      })
+                  })
               }); 
-          } */
+          } 
     }).addTo(map);
 
     createSliderUI(dataLayer, colorize);
@@ -168,7 +175,7 @@ function updateMap(dataLayer, colorize, currentYear, ageGroup) {
     dataLayer.eachLayer(function (layer) {
 
         var props = layer.feature.properties;
-        const total = props.pop[`${currentYear}_totpop`]
+        const total = props.pop[`${currentYear}_totpop`.toLocaleString()] 
         // const density = Number(props.pop[`${currentYear}_${ageGroup}`]) / (Number(props["ALAND"]) * 0.000247105) // per acre
         /*  layer.setStyle({
               fillColor: colorize(density)
@@ -187,9 +194,15 @@ function updateMap(dataLayer, colorize, currentYear, ageGroup) {
                 weight: 0
             });
         }
+        let tooltip = ''
+                if (total == 0) {
+                    tooltip = 'No Data';
+                } else {
+                    tooltip = (`<b>Percent of Age Group:</b> ${(ratio * 100).toFixed()}% <br>
+                    <b>Total Population of Tract:</b> ${total}`);
+                }
 
-
-        layer.bindPopup(`ratio ${ratio}, tot pop; ${total}`)
+        layer.bindTooltip(tooltip);
 
     });
 
@@ -212,7 +225,7 @@ function drawLegend(breaks, colorize) {
 
     legendControl.addTo(map);
 
-    const legend = $('.legend').html("<h3><span>2014</span>Population</h3><ul>");
+    const legend = $('.legend').html("<h3><span>2014</span>Percent of Population</h3><ul>");
 
     for (let i = 0; i < breaks.length - 1; i++) {
 
@@ -220,14 +233,15 @@ function drawLegend(breaks, colorize) {
 
         const classRange = `<li><span style="background:${color}"></span>
             
-             < ${breaks[i + 1].toLocaleString()} </li>`
+        ${(breaks[i] * 100).toFixed(1)}% &mdash;
+        ${(breaks[i + 1] * 100).toFixed(1)}% </li>`
 
         $('.legend ul').append(classRange);
     }
 
-    $('.legend ul').append(`<li><span style="background:lightgray"></span>No data</li>`)
+   // $('.legend ul').append(`<li><span style="background:lightgray"></span>No data</li>`)
 
-    legend.append("</ul>");
+   // legend.append("</ul>");
 
 } //end drawLegend
 
