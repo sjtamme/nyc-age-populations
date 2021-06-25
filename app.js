@@ -9,6 +9,7 @@ const options = {
 
 const map = L.map('map', options);
 
+
 const tiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
@@ -55,19 +56,22 @@ $.when(newyorkLayer).done(function () {
             console.log("Add data/nyc_tracts.geojson")
         });
     $.getJSON("data/borough_boundaries.geojson", function (boros) {
-        const boroLayer = L.geoJson(boros, {
+        let boroLayer = L.geoJson(boros, {
             style: function (feature) {
                 return {
-                    color: '#20282e',
-                    weight: 0,
+                    color: 'gray',
+                    weight: 1.4,
                     fillOpacity: 0,
                     interactive: false
                 };
             }
         })
         boroLayer.addTo(map)
+        
     })
 })
+
+
 
 
 
@@ -144,20 +148,20 @@ function drawMap(counties, colorize) {
             };
         },
         onEachFeature: function (feature, layer) {
-              layer.on('mouseover', function () {
-                  layer.setStyle({
-                      color: 'black',
-                      weight: 1.5,
-                      // fillColor: 'yellow'
-                  });
-                  layer.on('mouseout', function () {
-                      layer.setStyle({
+            layer.on('mouseover', function () {
+                layer.setStyle({
+                    color: 'black',
+                    weight: 1.5,
+                    // fillColor: 'yellow'
+                });
+                layer.on('mouseout', function () {
+                    layer.setStyle({
                         color: '#20282e',
                         weight: 0,
-                      })
-                  })
-              }); 
-          } 
+                    })
+                })
+            });
+        }
     }).addTo(map);
 
     createSliderUI(dataLayer, colorize);
@@ -172,19 +176,19 @@ function updateMap(dataLayer, colorize, currentYear, ageGroup) {
 
     console.log(`${currentYear}_${ageGroup}`)
 
+   /* boroLayer.eachLayer(function (layer) {
+    var boro_name = boroLayer.features.properties.boro_name
+    }); */
+
     dataLayer.eachLayer(function (layer) {
 
         var props = layer.feature.properties;
-        const total = props.pop[`${currentYear}_totpop`.toLocaleString()] 
-        // const density = Number(props.pop[`${currentYear}_${ageGroup}`]) / (Number(props["ALAND"]) * 0.000247105) // per acre
-        /*  layer.setStyle({
-              fillColor: colorize(density)
-          });
-          layer.bindPopup(`density: ${density}`) */
+        const total = props.pop[`${currentYear}_totpop`.toLocaleString()]
 
-        const ratio = Number(props.pop[`${currentYear}_${ageGroup}`]/total) // ratio
+        const ratio = Number(props.pop[`${currentYear}_${ageGroup}`] / total) // ratio
 
-        if (total > 99) {
+        // could gather more info here
+        if (total > 5) {
             layer.setStyle({
                 fillColor: colorize(ratio)
             });
@@ -194,13 +198,14 @@ function updateMap(dataLayer, colorize, currentYear, ageGroup) {
                 weight: 0
             });
         }
+
         let tooltip = ''
-                if (total == 0) {
-                    tooltip = 'No Data';
-                } else {
-                    tooltip = (`<b>Percent of Age Group:</b> ${(ratio * 100).toFixed()}% <br>
+        if (total == 0) {
+            tooltip = 'No Data';
+        } else {
+            tooltip = (`<b>NYC Burough</b>: <br><b>Age Group Population Percent:</b> ${(ratio * 100).toFixed()}% <br>
                     <b>Total Population of Tract:</b> ${total}`);
-                }
+        }
 
         layer.bindTooltip(tooltip);
 
@@ -239,9 +244,9 @@ function drawLegend(breaks, colorize) {
         $('.legend ul').append(classRange);
     }
 
-   // $('.legend ul').append(`<li><span style="background:lightgray"></span>No data</li>`)
+    // $('.legend ul').append(`<li><span style="background:lightgray"></span>No data</li>`)
 
-   // legend.append("</ul>");
+    // legend.append("</ul>");
 
 } //end drawLegend
 
