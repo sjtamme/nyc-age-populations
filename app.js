@@ -103,11 +103,12 @@ function processData(counties, data) {
             if (!prop.includes('_totpop') && prop != "GEOID") {
 
                 const p = county.properties.pop[prop]
-                const y = prop.substring(0,4)
+                const y = prop.substring(0, 4)
                 const d = p / county.properties.pop[`${y}_totpop`]
 
-                var density = Number(county.properties.pop[prop]) / (Number(county.properties["ALAND"])* 0.000247105);
+                // var density = Number(county.properties.pop[prop]) / (Number(county.properties["ALAND"]) * 0.000247105); 
 
+                //  rates.push(density);
                 rates.push(d);
 
             }
@@ -142,14 +143,14 @@ function drawMap(counties, colorize) {
                 fillColor: '#1f78b4'
             };
         },
-      /*  onEachFeature: function (feature, layer) {
-            layer.on('mouseover', function () {
-                layer.setStyle({
-                    // color: 'yellow',
-                    weight: .3
-                }).bringToFront();
-            }); 
-        } */
+        /*  onEachFeature: function (feature, layer) {
+              layer.on('mouseover', function () {
+                  layer.setStyle({
+                      // color: 'yellow',
+                      weight: .3
+                  }).bringToFront();
+              }); 
+          } */
     }).addTo(map);
 
     createSliderUI(dataLayer, colorize);
@@ -168,22 +169,28 @@ function updateMap(dataLayer, colorize, currentYear, ageGroup) {
 
         var props = layer.feature.properties;
         const total = props.pop[`${currentYear}_totpop`]
-        // console.log(props)
-        const density = Number(props.pop[`${currentYear}_${ageGroup}`])/(Number(props["ALAND"])* 0.000247105) // per acre
+        // const density = Number(props.pop[`${currentYear}_${ageGroup}`]) / (Number(props["ALAND"]) * 0.000247105) // per acre
+        /*  layer.setStyle({
+              fillColor: colorize(density)
+          });
+          layer.bindPopup(`density: ${density}`) */
+
         const ratio = Number(props.pop[`${currentYear}_${ageGroup}`]/total) // ratio
-        
+
         if (total > 99) {
             layer.setStyle({
                 fillColor: colorize(ratio)
             });
         } else {
             layer.setStyle({
-                fillOpacity: 0
+                fillOpacity: 0,
+                weight: 0
             });
         }
 
-        
+
         layer.bindPopup(`ratio ${ratio}, tot pop; ${total}`)
+
     });
 
 } //end updateMap
