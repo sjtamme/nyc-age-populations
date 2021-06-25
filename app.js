@@ -102,26 +102,19 @@ function processData(counties, data) {
 
             if (!prop.includes('_totpop') && prop != "GEOID") {
 
-                /////////////* !!!!!!!!!!!!! NORMALIZE DATA HERE??  *///////////////
                 const p = county.properties.pop[prop]
                 const y = prop.substring(0,4)
                 const d = p / county.properties.pop[`${y}_totpop`]
 
                 var density = Number(county.properties.pop[prop]) / (Number(county.properties["ALAND"])* 0.000247105);
-                // console.log(county);
 
                 rates.push(d);
 
-                //    console.log(county.properties[prop]);
             }
         }
     });
 
     console.log(rates);
-
-    
-
-    //var popDensity = (rates / ("ALAND * 0.0000003861"));
 
     var breaks = chroma.limits(rates, 'q', 7);
     console.log(breaks);
@@ -149,14 +142,14 @@ function drawMap(counties, colorize) {
                 fillColor: '#1f78b4'
             };
         },
-        onEachFeature: function (feature, layer) {
+      /*  onEachFeature: function (feature, layer) {
             layer.on('mouseover', function () {
                 layer.setStyle({
                     // color: 'yellow',
                     weight: .3
                 }).bringToFront();
-            });
-        }
+            }); 
+        } */
     }).addTo(map);
 
     createSliderUI(dataLayer, colorize);
@@ -265,8 +258,6 @@ function createSliderUI(dataLayer, colorize) {
 } //end createSliderUI
 
 
-
-/* !!!!!!!!!!DROPDOWN ATTEMPT #1!!!!!!!!!!!!! */
 function addUi(dataLayer, colorize) {
     var selectControl = L.control({
         position: "topright"
@@ -283,18 +274,3 @@ function addUi(dataLayer, colorize) {
         updateMap(dataLayer, colorize, currentYear, ageGroup);
     });
 }
-
-
-/* 1!!!!!!!!!!! DROPDOWN ATTEMPT #2!!!!!!!!!!!!!!!! 
-
-    // dropdown - look at bootstrap examples
-    $('.dropdown-menu')
-        .on("click", function () {
-            // console.log(this)
-            const ageGroup = this.value;
-            console.log(ageGroup)
-            $('.dropdown-menu').html(ageGroup);
-            updateMap(dataLayer, colorize, currentYear, ageGroup);
-        });
-
-        */
