@@ -6,8 +6,5 @@ Here is the tract metadata document: https://www2.census.gov/geo/tiger/TIGER_DP/
 
 For data wrangling, I used QGIS to filter the geojson to just NYC census tracts. I wrangled the data to create one CSV file that contains each year and each age group I want to map. I joined the files together using the GEOID attributes.
 
-Still to do:
-- get working dropdown menu
-- normalize data using land area
 
 
