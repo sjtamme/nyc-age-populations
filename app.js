@@ -203,7 +203,7 @@ function updateMap(dataLayer, colorize, currentYear, ageGroup) {
         if (total == 0) {
             tooltip = 'No Data';
         } else {
-            tooltip = (`<b>NYC Burough</b>: <br><b>Age Group Population Percent:</b> ${(ratio * 100).toFixed()}% <br>
+            tooltip = (`<b>Age Group Population Percent:</b> ${(ratio * 100).toFixed()}% <br>
                     <b>Total Population of Tract:</b> ${total}`);
         }
 
